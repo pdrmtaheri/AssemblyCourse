@@ -54,7 +54,6 @@ read_numbers:
     mov esi, edi
     dec ecx
     xor ebx, ebx
-    mov edx, numbers
     movzx edx, word[n]
       next_d:
         movzx eax, byte[esi]
@@ -74,7 +73,6 @@ read_numbers:
       jmp next_d
     re:
     mov [numbers + edx*4 - 4], ebx
-    mov edx, numbers
     ret
 
 read_input:
@@ -83,7 +81,6 @@ read_input:
     mov ecx, eax
     
     call read_numbers
-    mov edx, numbers
     
     ret
     
@@ -149,13 +146,12 @@ print_result:
         int 80h
         pop ecx
         loop conv
-    ret
+    retn
     
 _start:
     call read_input
     call sort_numbers
   
-    mov edx, numbers
     call print_result
     
 exit:
