@@ -2,3 +2,6 @@
 *.out
 *.swo
 *.swp
+*.zip
+.DS_Store
+.idea
