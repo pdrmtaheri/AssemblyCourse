@@ -11,24 +11,24 @@ section .bss
     head resb 54
     file_descriptor resb 1
 
-section  .text              ; declaring our .text segment
-  global  _start            ; telling where program execution should start
+section .text
+  global _start
 
 read_header:
-    mov     ebx,  [file_descriptor]       ;   file_descriptor,
-    mov     eax,  3         ; read(
-    mov     ecx,  head       ;   *buf,
-    mov     edx,  54;   *bufsize
+    mov ebx, [file_descriptor]
+    mov eax, 3
+    mov ecx, head
+    mov edx, 54
     int 80h
 
     ret
 
 read_image_data:
-    mov     ebx,  [file_descriptor]       ;   file_descriptor,
-    mov     eax,  3         ; read(
-    mov     ecx,  buf       ;   *buf,
-    mov     edx,  bufsize;   *bufsize
-    int     80h             ; );
+    mov ebx, [file_descriptor]
+    mov eax, 3
+    mov ecx, buf
+    mov edx, bufsize
+    int 80h
     mov [datasize], eax
 
     ret
@@ -54,28 +54,27 @@ create_new_image:
     int  80h
     push eax
 
-    mov edx, headsize          ;number of bytes
-    mov ecx, head         ;message to write
-    mov ebx, eax    ;file descriptor 
-    mov eax,4            ;system call number (sys_write)
-    int 80h             ;call kernel
+    mov edx, headsize
+    mov ecx, head
+    mov ebx, eax
+    mov eax, 4
+    int 80h
 
     pop eax
-    mov edx, datasize          ;number of bytes
-    mov ecx, buf         ;message to write
-    mov ebx, eax    ;file descriptor 
-    mov eax,4            ;system call number (sys_write)
-    int 80h             ;call kernel
+    mov edx, datasize
+    mov ecx, buf
+    mov ebx, eax
+    mov eax, 4
+    int 80h
 
     ret
 
 
 _start:
-  ; open the file
-    mov   eax,  5           ; open(
-    mov   ebx, filename
-    mov   ecx,  0           ;   read-only mode
-    int   80h               ; );
+    mov eax, 5
+    mov ebx, filename
+    mov ecx, 0
+    int 80h
 
     mov [file_descriptor], eax
 
@@ -85,6 +84,6 @@ _start:
     call create_new_image
 
 exit:
-    mov   eax,  1           ; exit(
-    mov   ebx,  0           ;   0
-    int   80h               ; );
+    mov eax, 1
+    mov ebx, 0
+    int 80h
