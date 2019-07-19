@@ -1,6 +1,6 @@
 section .data
     filename db 'sample.bmp',0
-    outfile db 'dark_sample.bmp',0
+    outfile db 'light_sample.bmp',0
     datasize dd 0
     bufsize  equ 10000000
     headsize equ 54
@@ -42,16 +42,16 @@ darken_image:
     cmp ecx, 8
     jb normal_add
     movq mm0, [buf + ecx]
-    psubusb mm0, mm1
+    paddusb mm0, mm1
     movq [buf + ecx], mm0
     sub ecx, 6
     loop image
   normal_add:
     mov dl, byte [buf + ecx]
-    sub [buf + ecx], byte darken_degree
+    add [buf + ecx], byte darken_degree
     cmp [buf + ecx], dl
-    jb cont
-    mov [buf + ecx], byte 0
+    ja cont
+    mov [buf + ecx], byte 255
     cont:
     inc ecx
   loop image
