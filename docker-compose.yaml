@@ -3,5 +3,9 @@ version: '2'
 services:
   asm:
     build: .
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
     volumes:
       - ./:/asm
