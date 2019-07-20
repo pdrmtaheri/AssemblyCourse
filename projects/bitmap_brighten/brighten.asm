@@ -1,7 +1,9 @@
+%include '../commons.asm'
+
 section .data
-    filename db 'sample.bmp',0
-    outfile db 'light_sample.bmp',0
-    datasize dd 0
+    filename db 'original/sample.bmp',0
+    outfile db 'modified/light_sample.bmp',0
+    datasize dq 0
     bufsize  equ 10000000
     headsize equ 54
     darken_degree equ 20
@@ -15,68 +17,69 @@ section .text
   global _start
 
 read_header:
-    mov ebx, [file_descriptor]
-    mov eax, 3
-    mov ecx, head
-    mov edx, 54
-    int 80h
+    mov rdi, [file_descriptor]
+    mov rax, SYS_READ
+    mov rsi, head
+    mov rdx, headsize
+    syscall
 
     ret
 
 read_image_data:
-    mov ebx, [file_descriptor]
-    mov eax, 3
-    mov ecx, buf
-    mov edx, bufsize
-    int 80h
-    mov [datasize], eax
+    mov rdi, [file_descriptor]
+    mov rax, SYS_READ
+    mov rsi, buf
+    mov rdx, bufsize
+    syscall
+    mov [datasize], rax
 
     ret
 
 darken_image:
-    mov ecx, dword [datasize]
+    mov rcx, qword [datasize]
   image:
-    dec ecx
-    mov dl, byte [buf + ecx]
-    add [buf + ecx], byte darken_degree
-    cmp [buf + ecx], dl
+    dec rcx
+    mov dl, byte [buf + rcx]
+    add [buf + rcx], byte darken_degree
+    cmp [buf + rcx], dl
     ja cont
-    mov [buf + ecx], byte 255
+    mov [buf + rcx], byte BYTE_MAX
     cont:
-    inc ecx
+    inc rcx
   loop image
     ret
 
 create_new_image:
-    mov  eax, 8
-    mov  ebx, outfile
-    mov  ecx, 0777
-    int  80h
-    push eax
+    mov rax, SYS_CREAT
+    mov rdi, outfile
+    mov rsi, RWX_PERM
+    syscall
+    push rax
 
-    mov edx, headsize
-    mov ecx, head
-    mov ebx, eax
-    mov eax, 4
-    int 80h
+    mov rdx, headsize
+    mov rsi, head
+    mov rdi, rax
+    mov rax, SYS_WRITE
+    syscall
 
-    pop eax
-    mov edx, datasize
-    mov ecx, buf
-    mov ebx, eax
-    mov eax, 4
-    int 80h
+    pop rax
+    mov rdx, datasize
+    mov rsi, buf
+    mov rdi, rax
+    mov rax, SYS_WRITE
+    syscall
 
     ret
 
 
 _start:
-    mov eax, 5
-    mov ebx, filename
-    mov ecx, 0
-    int 80h
+    mov rax, SYS_OPEN
+    mov rdi, filename
+    mov rsi, RW_CREAT
+    mov rdx, READONLY_PERM
+    syscall
 
-    mov [file_descriptor], eax
+    mov [file_descriptor], rax
 
     call read_header
     call read_image_data
@@ -84,6 +87,6 @@ _start:
     call create_new_image
 
 exit:
-    mov eax, 1
-    mov ebx, 0
-    int 80h
+    mov rax, SYS_EXIT
+    mov rdi, EXIT_SUCCESS
+    syscall
