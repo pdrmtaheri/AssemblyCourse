@@ -3,13 +3,10 @@
 %define SYS_OPEN 2
 %define SYS_CLOSE 3
 %define SYS_EXIT 60
-%define SYS_GETDENTS 78
 %define SYS_CREAT 85
-
-%define RW_CREAT 0102o
+%define SYS_GETDENTS 78
 
 %define RWX_PERM 0777
-%define READONLY_PERM 0
 
 %define BYTE_MIN 0
 %define BYTE_MAX 255
