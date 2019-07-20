@@ -71,7 +71,6 @@ create_new_image:
 
     ret
 
-
 _start:
     mov rax, SYS_OPEN
     mov rdi, filename
