@@ -9,3 +9,4 @@ services:
       - SYS_PTRACE
     volumes:
       - ./:/asm
+      - ./../AsmAsm:/AsmAsm

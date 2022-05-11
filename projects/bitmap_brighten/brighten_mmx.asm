@@ -2,12 +2,14 @@
 
 section .data
     filename db 'original/sample.bmp',0
+    filename2 db 'original/ray.bmp',0
     outfile db 'modified/light_sample.bmp',0
+    outfile2 db 'modified/light_ray.bmp',0
     datasize dq 0
     bufsize  equ 10000000
     headsize equ 54
-    darken_degree_bytes db 20,20,20,20,20,20,20,20
-    darken_degree equ 20
+    darken_degree_bytes db -20,-20,-20,-20,-20,-20,-20,-20
+    darken_degree equ -20
 
 section .bss
     buf resb 10000000
@@ -51,9 +53,16 @@ darken_image:
   normal_add:
     mov dl, byte [buf + rcx]
     add [buf + rcx], byte darken_degree
-    cmp [buf + rcx], dl
-    ja cont
+    jc cont
+    cmp [darken_degree_bytes], byte 0
+    ja pos
+    cmp [darken_degree_bytes], byte 0
+    jb neg
+    pos:
     mov [buf + rcx], byte 255
+    jmp cont
+    neg:
+    mov [buf + rcx], byte 0
     cont:
     inc rcx
   loop image
@@ -61,7 +70,7 @@ darken_image:
 
 create_new_image:
     mov rax, SYS_CREAT
-    mov rdi, outfile
+    ;xor rsi, rsi
     mov rsi, RWX_PERM
     syscall
     push rax
@@ -93,7 +102,23 @@ _start:
     call read_header
     call read_image_data
     call darken_image
+    mov rdi, outfile
     call create_new_image
+
+    mov rax, SYS_OPEN
+    mov rdi, filename2
+    mov rsi, RW_CREAT
+    mov rdx, READONLY_PERM
+    syscall
+
+    mov [file_descriptor], rax
+
+    call read_header
+    call read_image_data
+    call darken_image
+    mov rdi, outfile2
+    call create_new_image
+
 
 exit:
     mov rax, SYS_EXIT
